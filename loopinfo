@@ -1,0 +1,81 @@
+For use w/ PID Tuning Blueprint v2.0
+CAM Angle Control
+    Integrating process
+    Parallel
+    No filter
+    scan time = 20 ms
+    P = Gain
+    I = s/repeat
+    Abs(I) <=1 - must enforce in code
+    D = s - Probably not going to need, will revisit if needed
+    Should draw process
+        SP (Angle) --> Error, PID --> CAM --> Pot --> PV
+    I think we just setAveraged() on the AnalogChannel ... maybe write our own damping
+    skipping the as is test
+    data get
+    H= 0%
+    DT = 0.20s
+    DELTA_MV = 0.10%
+    DO ERROR AS %
+    SLOPE = .05
+    PG = .5
+    P = 2*DT*PG = .02
+    I=4/(PG*P)=.16
+    D=0
+    Ip = Ii/Pi = 8
+    Adding Lies constant L = 1
+        Engage at x > 350 , x < 10
+        push back of -L * (getAngle() > 180 ? getAngle() : getAngle()-360)/360
+
+Practice Bot DT
+    Self-regulating
+    Parallel
+    No Filter
+    scan time = 20ms
+    P = Gain
+    I = s/repeat
+    Abs(I) < 1
+    D = s
+    Process
+        SP (FPS) --> Error, PID --> DT --> Enc --> PV (FPS)
+    data get
+    DELTA_PV = .16 - .11 = .05
+    DELTA_MV = .08
+    H = 0.01 WOOOHOOOO
+    PG = .05/.08 = .625
+    NH = .01 / .625 = .016
+    T0 = 25.80
+    T25 = 25.86
+    T75 = 26.20
+    TC = .09(T75-T25) = .34 * .09  = .306
+    DT = (T75 - T0) - (1.4*TC) + .02 = .0016
+    DT < .01x TC --> DT = .1xTC = .0306
+    Using PI control, want better sp change
+        Pa = .758
+        Pb = -.861
+        Ia = 1.020
+        Ib = -.323
+    P = A/PG (DT/TC) ^ B = (.758/.625)*(.0306/.306)^-.861 = 8.806
+    I = TC/(A*(DT/TC)^B) = .306/(1.02*((.0306/.306)^-0.323)) = .1426
+    Pp = P = 8.806
+    Ip = I/P = .01619
+
+Practice Bot DT v2
+    Integrating
+    Parallel
+    No Filter
+    scan time  = 20ms
+    P = Gain
+    I = s/repeat
+
+    data get
+    H = 0.12
+    DT = .34
+    DELTA_MV = .12
+    SLOPE_PV = 0.144
+    PG = .144/.12 = 1.2
+    P = 1/(2*DT*PG) = .123
+    I = 4/(PG*P) = 27.1
+    Ip = 27.1/.123 = 220
+
+
